@@ -1,0 +1,5 @@
+spring:
+  banner:
+    location: logo-app
+  profiles:
+    active: UpperCase
