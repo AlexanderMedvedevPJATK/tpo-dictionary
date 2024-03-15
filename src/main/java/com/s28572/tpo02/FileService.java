@@ -9,29 +9,18 @@ import org.springframework.stereotype.Service;
 import java.io.*;
 
 @Service
-@PropertySource("classpath:external.properties")
 public class FileService {
     private PrintWriter writer;
     private final String filePath;
     private final CaseProfile caseProfile;
     private final EntryRepository entryRepository;
 
-    public FileService(@Value("${pl.edu.pja.tpo02.filename}") String filePath, CaseProfile caseProfile, EntryRepository entryRepository) {
-        this.filePath = filePath;
+    public FileService(CaseProfile caseProfile, EntryRepository entryRepository) {
         this.caseProfile = caseProfile;
         this.entryRepository = entryRepository;
     }
 
     @PostConstruct
-    public void initialize() {
-        try {
-            writer = new PrintWriter(new BufferedWriter(new FileWriter(filePath, true)));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        populateEntriesFromFile();
-    }
-
     private void populateEntriesFromFile() {
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             while (br.ready()) {
