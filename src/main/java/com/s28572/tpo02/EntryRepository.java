@@ -21,6 +21,6 @@ public class EntryRepository {
 
     // TODO
     public List<Entry> getEntries() {
-        return new ArrayList<>();
+        return entityManager.createQuery("SELECT e FROM Entry e", Entry.class).getResultList();
     }
 }
