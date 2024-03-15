@@ -6,6 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.annotation.Bean;
 
+import java.util.InputMismatchException;
+
 @SpringBootApplication
 @ConfigurationPropertiesScan
 public class FlashcardsApp {
@@ -21,11 +23,15 @@ public class FlashcardsApp {
             boolean running = true;
             while (running) {
                 int response = controller.showOptions();
-                switch (response) {
-                    case 1 -> controller.addWord();
-                    case 2 -> controller.showAll();
-                    case 3 -> controller.test();
-                    case 0 -> running = false;
+                try {
+                    switch (response) {
+                        case 1 -> controller.addWord();
+                        case 2 -> controller.showAll();
+                        case 3 -> controller.test();
+                        case 0 -> running = false; // doesn't work
+                    }
+                } catch (InputMismatchException e) {
+                    System.out.println("INVALID INPUT");
                 }
             }
             fileService.closeWriter();

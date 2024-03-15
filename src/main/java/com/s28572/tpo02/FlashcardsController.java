@@ -2,9 +2,7 @@ package com.s28572.tpo02;
 
 import org.springframework.stereotype.Controller;
 
-import java.util.InputMismatchException;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 @Controller
 public class FlashcardsController {
@@ -58,22 +56,44 @@ public class FlashcardsController {
         System.out.print("Enter the translation in Polish: ");
         String pl = scanner.next();
 
-        fileService.saveWord(new Entry(en, de, pl));
+        fileService.saveWord(en, de, pl);
     }
 
     public void showAll() {
+
         System.out.println("1. Default view");
         System.out.println("2. A -> Z sorted");
         System.out.println("3. Z -> A sorted");
 
         int sorting = scanner.nextInt();
 
-        switch (sorting) {
-            case 1 -> entryRepository.getEntries().forEach(System.out::println);
+        List<Entry> entries = entryRepository.getEntries();
 
-            // TODO
-//            case 2 -> entryRepository.getEntries().forEach(System.out::println);
-//            case 3 -> entryRepository.getEntries().forEach(System.out::println);
+        if (sorting == 2 || sorting == 3) {
+            sortByLang(sorting, entries);
+        } else {
+            entries.forEach(System.out::println);
+        }
+    }
+
+    private void sortByLang(int sorting, List<Entry> entries) {
+        System.out.println("1. Sort PL");
+        System.out.println("2. Sort DE");
+        System.out.println("3. Sort EN");
+
+        int sortingLang = scanner.nextInt();
+        List<Entry> sortedEntries = new ArrayList<>();
+        if (sortingLang <= 3 && sortingLang >= 1) {
+            switch (sortingLang) {
+                case 1 -> sortedEntries = entries.stream().sorted(Comparator.comparing(Entry::getPl)).toList();
+                case 2 -> sortedEntries = entries.stream().sorted(Comparator.comparing(Entry::getDe)).toList();
+                case 3 -> sortedEntries = entries.stream().sorted(Comparator.comparing(Entry::getEn)).toList();
+            }
+        }
+
+        switch (sorting) {
+            case 2 -> sortedEntries.forEach(System.out::println);
+            case 3 -> sortedEntries.reversed().forEach(System.out::println);
         }
     }
 

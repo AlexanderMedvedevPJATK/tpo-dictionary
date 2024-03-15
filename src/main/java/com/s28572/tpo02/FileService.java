@@ -44,10 +44,13 @@ public class FileService {
         }
     }
 
-    public void saveWord(Entry entry) {
+    public void saveWord(String en, String de, String pl) {
+        en = caseProfile.modify(en);
+        de = caseProfile.modify(de);
+        pl = caseProfile.modify(pl);
+        Entry entry = new Entry(en, de, pl);
         entryRepository.addEntry(entry);
         writer.printf("%s;%s;%s\n", entry.getEn(), entry.getDe(), entry.getPl());
-
     }
 
     public void closeWriter() {
