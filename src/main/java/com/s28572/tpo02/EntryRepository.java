@@ -1,18 +1,26 @@
 package com.s28572.tpo02;
 
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
+import org.springframework.stereotype.Repository;
+
 import java.util.ArrayList;
 import java.util.List;
+@Repository
 public class EntryRepository {
-    private static final List<Entry> entries = new ArrayList<>();
+    private final EntityManager entityManager;
 
-    private EntryRepository() {
+    public EntryRepository(EntityManager entityManager) {
+        this.entityManager = entityManager;
     }
 
-    public static void addEntry(Entry entry) {
-        entries.add(entry);
+    @Transactional
+    public void addEntry(Entry entry) {
+        entityManager.persist(entry);
     }
 
-    public static List<Entry> getEntries() {
-        return entries;
+    // TODO
+    public List<Entry> getEntries() {
+        return new ArrayList<>();
     }
 }

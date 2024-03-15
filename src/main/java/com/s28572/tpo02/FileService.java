@@ -14,10 +14,12 @@ public class FileService {
     private PrintWriter writer;
     private final String filePath;
     private final CaseProfile caseProfile;
+    private final EntryRepository entryRepository;
 
-    public FileService(@Value("${pl.edu.pja.tpo02.filename}") String filePath, CaseProfile caseProfile) {
+    public FileService(@Value("${pl.edu.pja.tpo02.filename}") String filePath, CaseProfile caseProfile, EntryRepository entryRepository) {
         this.filePath = filePath;
         this.caseProfile = caseProfile;
+        this.entryRepository = entryRepository;
     }
 
     @PostConstruct
@@ -35,7 +37,7 @@ public class FileService {
             while (br.ready()) {
                 String line = caseProfile.modify(br.readLine());
                 String[] translations = line.split(";");
-                EntryRepository.addEntry(new Entry(translations[0], translations[1], translations[2]));
+                entryRepository.addEntry(new Entry(translations[0], translations[1], translations[2]));
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -43,8 +45,9 @@ public class FileService {
     }
 
     public void saveWord(Entry entry) {
-        EntryRepository.addEntry(entry);
-        writer.printf("%s;%s;%s\n", entry.en(), entry.de(), entry.pl());
+        entryRepository.addEntry(entry);
+        writer.printf("%s;%s;%s\n", entry.getEn(), entry.getDe(), entry.getPl());
+
     }
 
     public void closeWriter() {

@@ -3,3 +3,19 @@ spring:
     location: logo-app
   profiles:
     active: UpperCase
+  h2:
+    console:
+      path: /h2
+  datasource:
+    url: jdbc:h2:file:./db/books;DATABASE_TO_UPPER=false
+    username: user
+    password: pass
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+
+
+
