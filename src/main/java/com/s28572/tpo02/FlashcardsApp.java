@@ -17,20 +17,23 @@ public class FlashcardsApp {
     }
 
     @Bean
-    public CommandLineRunner runner(FlashcardsController controller, FileService fileService) {
+    public CommandLineRunner runner(FlashcardsController controller) {
         return runner -> {
             System.out.println("Welcome to the dictionary application!");
             boolean running = true;
             while (running) {
-                int response = controller.showOptions();
                 try {
+                    int response = controller.showOptions();
                     switch (response) {
                         case 1 -> controller.addWord();
                         case 2 -> controller.showAll();
                         case 3 -> controller.test();
+                        case 4 -> controller.search();
+//                        case 5 -> controller.delete();
                         case 0 -> running = false; // doesn't work
                     }
                 } catch (InputMismatchException e) {
+                    controller.flushScanner();
                     System.out.println("INVALID INPUT");
                 }
             }
