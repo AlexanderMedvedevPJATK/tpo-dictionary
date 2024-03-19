@@ -34,7 +34,6 @@ public class FlashcardsApp {
                     System.out.println("INVALID INPUT");
                 }
             }
-            fileService.closeWriter();
         };
     }
 
