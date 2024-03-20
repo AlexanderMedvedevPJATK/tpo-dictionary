@@ -44,4 +44,9 @@ public class EntryRepository {
                 .setParameter("keyword", "%" + keyword + "%")
                 .getResultList();
     }
+
+    @Transactional
+    public void delete(Long id) {
+        entityManager.remove(entityManager.find(Entry.class, id));
+    }
 }

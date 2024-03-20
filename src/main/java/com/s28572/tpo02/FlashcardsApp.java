@@ -26,10 +26,10 @@ public class FlashcardsApp {
                     int response = controller.showOptions();
                     switch (response) {
                         case 1 -> controller.addWord();
-                        case 2 -> controller.showAll();
+                        case 2 -> controller.showAll(true);
                         case 3 -> controller.test();
-                        case 4 -> controller.search();
-//                        case 5 -> controller.delete();
+                        case 4 -> controller.search(true);
+                        case 5 -> controller.delete();
                         case 0 -> running = false; // doesn't work
                     }
                 } catch (InputMismatchException e) {

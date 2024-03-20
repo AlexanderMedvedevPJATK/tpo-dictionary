@@ -8,7 +8,6 @@ public class Entry {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String en;
     private String de;
     private String pl;

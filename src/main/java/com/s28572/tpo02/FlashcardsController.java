@@ -3,6 +3,7 @@ package com.s28572.tpo02;
 import com.s28572.tpo02.profiles.CaseProfile;
 import org.springframework.stereotype.Controller;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 @Controller
@@ -58,7 +59,7 @@ public class FlashcardsController {
         fileService.saveWord(en, de, pl);
     }
 
-    public void showAll() {
+    public List<Entry> showAll(boolean print) {
         System.out.println("1. Default view");
         System.out.println("2. A -> Z sorted");
         System.out.println("3. Z -> A sorted");
@@ -68,13 +69,14 @@ public class FlashcardsController {
         List<Entry> entries = entryRepository.getEntries();
 
         if (sorting == 2 || sorting == 3) {
-            sortByLang(sorting, entries);
-        } else {
+            entries = sortByLang(sorting, entries, print);
+        } else if (print) {
             printWithCaseProfile(entries);
         }
+        return entries;
     }
 
-    private void sortByLang(int sorting, List<Entry> entries) {
+    private List<Entry> sortByLang(int sorting, List<Entry> entries, boolean print) {
         System.out.println("1. Sort English");
         System.out.println("2. Sort German");
         System.out.println("3. Sort Polish");
@@ -90,9 +92,16 @@ public class FlashcardsController {
         }
 
         switch (sorting) {
-            case 2 -> printWithCaseProfile(sortedEntries);
-            case 3 -> printWithCaseProfile(sortedEntries.reversed());
+            case 2 -> {
+                if (print) printWithCaseProfile(sortedEntries);
+                return sortedEntries;
+            }
+            case 3 -> {
+                if (print) printWithCaseProfile(sortedEntries.reversed());
+                return sortedEntries.reversed();
+            }
         }
+        return null;
     }
 
     public void test() {
@@ -124,7 +133,7 @@ public class FlashcardsController {
         }
     }
 
-    public void search() {
+    public List<Entry> search(boolean print) {
         System.out.println("Select the language you want to search by:");
         System.out.println("1. English");
         System.out.println("2. German");
@@ -132,7 +141,7 @@ public class FlashcardsController {
         int lang = scanner.nextInt();
         if (lang < 1 || lang > 3) {
             System.out.println("Invalid input");
-            return;
+            return null;
         }
         System.out.println("Enter search keyword: ");
         String keyword = scanner.next();
@@ -143,13 +152,15 @@ public class FlashcardsController {
             case 2 -> resList = entryRepository.searchEntriesGerman(keyword);
             case 3 -> resList = entryRepository.searchEntriesPolish(keyword);
         }
-
-        if (resList != null && !resList.isEmpty()) {
-            System.out.println("--- SEARCH RESULT ---");
-            printWithCaseProfile(resList);
-        } else {
-            System.out.println("Nothing found");
+        if (print) {
+            if (resList != null && !resList.isEmpty()) {
+                System.out.println("--- SEARCH RESULT ---");
+                printWithCaseProfile(resList);
+            } else {
+                System.out.println("Nothing found");
+            }
         }
+        return resList;
     }
 
     public void flushScanner() {
@@ -159,5 +170,46 @@ public class FlashcardsController {
     public void printWithCaseProfile(List<Entry> entries) {
         entries.stream().map(caseProfile::modify).forEach(System.out::println);
         System.out.println("---------------------");
+    }
+
+    public void delete() {
+        System.out.println("List all or search records to delete?");
+        System.out.println("1. List all");
+        System.out.println("2. Search");
+        int response = scanner.nextInt();
+        List<Entry> entries = null;
+
+        switch (response) {
+            case 1 -> entries = showAll(false);
+            case 2 -> entries = search(false);
+        }
+        if (entries != null && !entries.isEmpty()) {
+            System.out.println("--- SEARCH RESULT ---");
+            for (int i = 0; i < entries.size(); i++) {
+                System.out.println(i + 1 + ". " + entries.get(i));
+            }
+            System.out.println("---------------------");
+            System.out.println("List numbers of entries to delete, separated by space: ");
+            if (scanner.hasNextLine()) scanner.nextLine();
+            String toDelete = scanner.nextLine();
+            try {
+                int[] indexes = Arrays.stream(toDelete.trim().split("\\s+")).mapToInt(Integer::parseInt).toArray();
+                for (int index : indexes) {
+                    if (index > entries.size() || index < 0) {
+                        System.out.println("---------------------");
+                        System.out.println("Entry with index " + index + " doesnt exist and was skipped");
+                        System.out.println("---------------------");
+                    } else {
+                        Entry entry = entries.get(index - 1);
+                        entryRepository.delete(entry.getId());
+                        System.out.println(" --- " + entry + " WAS DELETED ---");
+                    }
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("INVALID INPUT");
+            }
+        } else {
+            System.out.println("Nothing found");
+        }
     }
 }
