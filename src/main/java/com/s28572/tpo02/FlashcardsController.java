@@ -208,7 +208,7 @@ public class FlashcardsController {
             if (number < 0 || number > entries.size()) {
                 System.out.println("INVALID ENTRY NUMBER");
             } else {
-                Entry toModify = entryService.findById(entries.get(number - 1).getId());
+                Entry toModify = entryService.findById(entries.get(number - 1).getId()).orElseThrow(NoSuchElementException::new);
                 System.out.println("What would you like to modify?");
                 System.out.println("1. English");
                 System.out.println("2. German");

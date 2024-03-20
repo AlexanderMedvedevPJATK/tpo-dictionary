@@ -1,58 +1,51 @@
 package com.s28572.tpo02;
 
-import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class EntryService {
-    private final EntityManager entityManager;
+    private final EntryRepository entryRepository;
 
-    public EntryService(EntityManager entityManager) {
-        this.entityManager = entityManager;
+    public EntryService(EntryRepository entryRepository) {
+        this.entryRepository = entryRepository;
     }
 
     @Transactional
     public void addEntry(Entry entry) {
-        entityManager.persist(entry);
+        entryRepository.save(entry);
     }
 
-    public Entry findById(Long id) {
-        return entityManager.find(Entry.class, id);
+    public Optional<Entry> findById(Long id) {
+        return entryRepository.findById(id);
     }
 
     public List<Entry> getEntries() {
-        return entityManager.createQuery("SELECT e FROM Entry e", Entry.class).getResultList();
+        return entryRepository.findAll();
     }
 
     public List<Entry> searchEntriesEnglish(String keyword) {
-        return entityManager.createQuery("SELECT e FROM Entry e WHERE LOWER(e.en) LIKE LOWER(:keyword)", Entry.class)
-                .setParameter("keyword", "%" + keyword + "%")  // match everything containing keyword
-                .getResultList();
+        return entryRepository.findByEnContainingIgnoreCase(keyword);
     }
 
     public List<Entry> searchEntriesGerman(String keyword) {
-        return entityManager.createQuery("SELECT e FROM Entry e WHERE LOWER(e.de) LIKE LOWER(:keyword)", Entry.class)
-                .setParameter("keyword", "%" + keyword + "%")
-                .getResultList();
+        return entryRepository.findByDeContainingIgnoreCase(keyword);
     }
 
     public List<Entry> searchEntriesPolish(String keyword) {
-        return entityManager.createQuery("SELECT e FROM Entry e WHERE LOWER(e.pl) LIKE LOWER(:keyword)", Entry.class)
-                .setParameter("keyword", "%" + keyword + "%")
-                .getResultList();
+        return entryRepository.findByPlContainingIgnoreCase(keyword);
     }
 
     @Transactional
     public void delete(Long id) {
-        entityManager.remove(findById(id));
+        findById(id).ifPresent(entryRepository::delete);
     }
 
     @Transactional
     public void modify(Entry modifiedEntry) {
-        entityManager.merge(modifiedEntry);
+        entryRepository.save(modifiedEntry);
     }
 }
