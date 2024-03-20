@@ -3,20 +3,19 @@ package com.s28572.tpo02;
 import com.s28572.tpo02.profiles.CaseProfile;
 import org.springframework.stereotype.Controller;
 
-import java.lang.reflect.Array;
 import java.util.*;
 
 @Controller
 public class FlashcardsController {
 
     private final FileService fileService;
-    private final EntryRepository entryRepository;
+    private final EntryService entryService;
     private final Scanner scanner;
     private final CaseProfile caseProfile;
 
-    public FlashcardsController(FileService fileService, EntryRepository entryRepository, Scanner scanner, CaseProfile caseProfile) {
+    public FlashcardsController(FileService fileService, EntryService entryService, Scanner scanner, CaseProfile caseProfile) {
         this.fileService = fileService;
-        this.entryRepository = entryRepository;
+        this.entryService = entryService;
         this.scanner = scanner;
         this.caseProfile = caseProfile;
     }
@@ -67,7 +66,7 @@ public class FlashcardsController {
 
         int sorting = scanner.nextInt();
 
-        List<Entry> entries = entryRepository.getEntries();
+        List<Entry> entries = entryService.getEntries();
 
         if (sorting == 2 || sorting == 3) {
             entries = sortByLang(sorting, entries, print);
@@ -113,7 +112,7 @@ public class FlashcardsController {
     }
 
     public void test() {
-        List<Entry> entries = entryRepository.getEntries();
+        List<Entry> entries = entryService.getEntries();
         Entry word = caseProfile.modify(entries.get((int) (Math.random() * entries.size())));
 
         System.out.printf("Enter English translation for \"%s\"\n", word.getPl());
@@ -156,9 +155,9 @@ public class FlashcardsController {
 
         List<Entry> resList = null;
         switch (lang) {
-            case 1 -> resList = entryRepository.searchEntriesEnglish(keyword);
-            case 2 -> resList = entryRepository.searchEntriesGerman(keyword);
-            case 3 -> resList = entryRepository.searchEntriesPolish(keyword);
+            case 1 -> resList = entryService.searchEntriesEnglish(keyword);
+            case 2 -> resList = entryService.searchEntriesGerman(keyword);
+            case 3 -> resList = entryService.searchEntriesPolish(keyword);
         }
         if (print) {
             if (resList != null && !resList.isEmpty()) {
@@ -188,7 +187,7 @@ public class FlashcardsController {
                         System.out.println("---------------------");
                     } else {
                         Entry entry = entries.get(index - 1);
-                        entryRepository.delete(entry.getId());
+                        entryService.delete(entry.getId());
                         System.out.println(" --- " + entry + " WAS DELETED ---");
                     }
                 }
@@ -209,7 +208,7 @@ public class FlashcardsController {
             if (number < 0 || number > entries.size()) {
                 System.out.println("INVALID ENTRY NUMBER");
             } else {
-                Entry toModify = entryRepository.findById(entries.get(number - 1).getId());
+                Entry toModify = entryService.findById(entries.get(number - 1).getId());
                 System.out.println("What would you like to modify?");
                 System.out.println("1. English");
                 System.out.println("2. German");
@@ -227,7 +226,7 @@ public class FlashcardsController {
                     case 2 -> toModify.setDe(newVal);
                     case 3 -> toModify.setPl(newVal);
                 }
-                entryRepository.modify(toModify);
+                entryService.modify(toModify);
             }
         } else {
             printNothingFound();

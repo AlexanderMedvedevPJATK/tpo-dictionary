@@ -1,6 +1,5 @@
 package com.s28572.tpo02;
 
-import com.s28572.tpo02.profiles.CaseProfile;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -12,11 +11,11 @@ import java.io.*;
 @PropertySource("classpath:external.properties")
 public class FileService {
     private final String filePath;
-    private final EntryRepository entryRepository;
+    private final EntryService entryService;
 
-    public FileService(@Value("${pl.edu.pja.tpo02.filename}") String filePath, EntryRepository entryRepository) {
+    public FileService(@Value("${pl.edu.pja.tpo02.filename}") String filePath, EntryService entryService) {
         this.filePath = filePath;
-        this.entryRepository = entryRepository;
+        this.entryService = entryService;
     }
 
     @PostConstruct
@@ -24,7 +23,7 @@ public class FileService {
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             while (br.ready()) {
                 String[] translations = br.readLine().split(";");
-                entryRepository.addEntry(new Entry(translations[0], translations[1], translations[2]));
+                entryService.addEntry(new Entry(translations[0], translations[1], translations[2]));
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -32,6 +31,6 @@ public class FileService {
     }
 
     public void saveWord(String en, String de, String pl) {
-        entryRepository.addEntry(new Entry(en, de, pl));
+        entryService.addEntry(new Entry(en, de, pl));
     }
 }
