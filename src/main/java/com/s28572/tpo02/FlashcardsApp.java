@@ -30,6 +30,7 @@ public class FlashcardsApp {
                         case 3 -> controller.test();
                         case 4 -> controller.search(true);
                         case 5 -> controller.delete();
+                        case 6 -> controller.modify();
                         case 0 -> running = false; // doesn't work
                     }
                 } catch (InputMismatchException e) {

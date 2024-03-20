@@ -23,6 +23,10 @@ public class EntryRepository {
         entityManager.persist(entry);
     }
 
+    public Entry findById(Long id) {
+        return entityManager.find(Entry.class, id);
+    }
+
     public List<Entry> getEntries() {
         return entityManager.createQuery("SELECT e FROM Entry e", Entry.class).getResultList();
     }
@@ -47,6 +51,11 @@ public class EntryRepository {
 
     @Transactional
     public void delete(Long id) {
-        entityManager.remove(entityManager.find(Entry.class, id));
+        entityManager.remove(findById(id));
+    }
+
+    @Transactional
+    public void modify(Entry modifiedEntry) {
+        entityManager.merge(modifiedEntry);
     }
 }

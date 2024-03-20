@@ -28,7 +28,7 @@ public class FlashcardsController {
 
         while (!validInput) {
             response = scanner.nextInt();
-            if (response >= 0 && response < 6) {
+            if (response >= 0 && response < 7) {
                 validInput = true;
             } else {
                 printOptions();
@@ -45,6 +45,7 @@ public class FlashcardsController {
         System.out.println("3. Create a test");
         System.out.println("4. Search");
         System.out.println("5. Delete");
+        System.out.println("6. Modify");
         System.out.println("0. Quit");
     }
 
@@ -71,6 +72,7 @@ public class FlashcardsController {
         if (sorting == 2 || sorting == 3) {
             entries = sortByLang(sorting, entries, print);
         } else if (print) {
+            System.out.println("------ ENTRIES ------");
             printWithCaseProfile(entries);
         }
         return entries;
@@ -93,11 +95,17 @@ public class FlashcardsController {
 
         switch (sorting) {
             case 2 -> {
-                if (print) printWithCaseProfile(sortedEntries);
+                if (print) {
+                    System.out.println("------ ENTRIES ------");
+                    printWithCaseProfile(sortedEntries);
+                }
                 return sortedEntries;
             }
             case 3 -> {
-                if (print) printWithCaseProfile(sortedEntries.reversed());
+                if (print) {
+                    System.out.println("------ ENTRIES ------");
+                    printWithCaseProfile(sortedEntries.reversed());
+                }
                 return sortedEntries.reversed();
             }
         }
@@ -157,38 +165,17 @@ public class FlashcardsController {
                 System.out.println("--- SEARCH RESULT ---");
                 printWithCaseProfile(resList);
             } else {
-                System.out.println("Nothing found");
+                printNothingFound();
             }
         }
         return resList;
     }
 
-    public void flushScanner() {
-        scanner.nextLine();
-    }
-
-    public void printWithCaseProfile(List<Entry> entries) {
-        entries.stream().map(caseProfile::modify).forEach(System.out::println);
-        System.out.println("---------------------");
-    }
 
     public void delete() {
-        System.out.println("List all or search records to delete?");
-        System.out.println("1. List all");
-        System.out.println("2. Search");
-        int response = scanner.nextInt();
-        List<Entry> entries = null;
-
-        switch (response) {
-            case 1 -> entries = showAll(false);
-            case 2 -> entries = search(false);
-        }
+        List<Entry> entries = listAllOrSearch();
         if (entries != null && !entries.isEmpty()) {
-            System.out.println("--- SEARCH RESULT ---");
-            for (int i = 0; i < entries.size(); i++) {
-                System.out.println(i + 1 + ". " + entries.get(i));
-            }
-            System.out.println("---------------------");
+            printNumerated(entries);
             System.out.println("List numbers of entries to delete, separated by space: ");
             if (scanner.hasNextLine()) scanner.nextLine();
             String toDelete = scanner.nextLine();
@@ -209,7 +196,78 @@ public class FlashcardsController {
                 System.out.println("INVALID INPUT");
             }
         } else {
-            System.out.println("Nothing found");
+            printNothingFound();
         }
+    }
+
+    public void modify() {
+        List<Entry> entries = listAllOrSearch();
+        if (entries != null && !entries.isEmpty()) {
+            printNumerated(entries);
+            System.out.println("Enter the number of a single entry to modify: ");
+            int number = scanner.nextInt();
+            if (number < 0 || number > entries.size()) {
+                System.out.println("INVALID ENTRY NUMBER");
+            } else {
+                Entry toModify = entryRepository.findById(entries.get(number - 1).getId());
+                System.out.println("What would you like to modify?");
+                System.out.println("1. English");
+                System.out.println("2. German");
+                System.out.println("3. Polish");
+                int lang = scanner.nextInt();
+
+                if (lang < 1 || lang > 3) {
+                    System.out.println("INVALID INPUT");
+                    return;
+                }
+                System.out.println("New value: ");
+                String newVal = scanner.next();
+                switch (lang) {
+                    case 1 -> toModify.setEn(newVal);
+                    case 2 -> toModify.setDe(newVal);
+                    case 3 -> toModify.setPl(newVal);
+                }
+                entryRepository.modify(toModify);
+            }
+        } else {
+            printNothingFound();
+        }
+
+    }
+    public void flushScanner() {
+        scanner.nextLine();
+    }
+
+    public List<Entry> listAllOrSearch() {
+        System.out.println("List all or search records?");
+        System.out.println("1. List all");
+        System.out.println("2. Search");
+        int response = scanner.nextInt();
+        List<Entry> entries = null;
+
+        switch (response) {
+            case 1 -> entries = showAll(false);
+            case 2 -> entries = search(false);
+        }
+        return entries;
+    }
+
+    public void printWithCaseProfile(List<Entry> entries) {
+        entries.stream().map(caseProfile::modify).forEach(System.out::println);
+        System.out.println("---------------------");
+    }
+
+    public void printNumerated(List<Entry> entries) {
+        System.out.println("------ ENTRIES ------");
+        for (int i = 0; i < entries.size(); i++) {
+            System.out.println(i + 1 + ". " + caseProfile.modify(entries.get(i)));
+        }
+        System.out.println("---------------------");
+    }
+
+    public void printNothingFound() {
+        System.out.println("---------------------");
+        System.out.println("Nothing found!");
+        System.out.println("---------------------");
     }
 }
