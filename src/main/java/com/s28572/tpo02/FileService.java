@@ -6,6 +6,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
+import java.util.List;
 
 @Service
 @PropertySource("classpath:external.properties")
@@ -20,15 +21,17 @@ public class FileService {
 
     @PostConstruct
     private void populateEntriesFromFile() {
-        if (entryService.getEntries().isEmpty()) {
-            try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
-                while (br.ready()) {
-                    String[] translations = br.readLine().split(";");
-                    entryService.addEntry(new Entry(translations[0], translations[1], translations[2]));
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            List<Entry> existingEntries = entryService.getEntries();
+            while (br.ready()) {
+                String[] translations = br.readLine().split(";");
+                Entry entry = new Entry(translations[0], translations[1], translations[2]);
+                if (!existingEntries.contains(entry)) {
+                    entryService.addEntry(entry);
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

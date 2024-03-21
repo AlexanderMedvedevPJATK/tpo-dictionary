@@ -54,4 +54,19 @@ public class Entry {
     public String toString() {
         return String.format("English: %s, German: %s, Polish: %s", en, de, pl);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || this.getClass() != obj.getClass()) {
+            return false;
+        }
+        Entry entry = (Entry) obj;
+
+        return this.en.equalsIgnoreCase(entry.en) &&
+               this.de.equalsIgnoreCase(entry.de) &&
+               this.pl.equalsIgnoreCase(entry.pl);
+    }
 }
