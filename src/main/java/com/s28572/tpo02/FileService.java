@@ -20,13 +20,15 @@ public class FileService {
 
     @PostConstruct
     private void populateEntriesFromFile() {
-        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
-            while (br.ready()) {
-                String[] translations = br.readLine().split(";");
-                entryService.addEntry(new Entry(translations[0], translations[1], translations[2]));
+        if (entryService.getEntries().isEmpty()) {
+            try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+                while (br.ready()) {
+                    String[] translations = br.readLine().split(";");
+                    entryService.addEntry(new Entry(translations[0], translations[1], translations[2]));
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
